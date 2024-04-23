@@ -1,0 +1,49 @@
+# version tag for backward compatibility.
+version: '3.8'
+
+services:
+  traefik:
+    container_name: traefik
+    image: traefik:v2.11.2
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--metrics.prometheus=false"
+      - "--providers.docker.watch"
+      - "--api.insecure=false"
+      - "--api=false"
+      - "--api.dashboard=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--providers.file.filename=/etc/traefik/dynamic_conf.yml"
+      # SSL config
+      - "--certificatesResolvers.le-ssl.acme.tlsChallenge=true"
+      - "--certificatesResolvers.le-ssl.acme.email=${LE_EMAIL}"
+      - "--certificatesResolvers.le-ssl.acme.storage=/letsencrypt/acme.json"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    networks:
+      - traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "traefik-data:/letsencrypt/"
+      - "./config/traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml"
+    restart: always
+
+volumes:
+  traefik-data:
+    driver: local
+
+networks:
+  traefik:
+    name: traefik
+    driver: bridge

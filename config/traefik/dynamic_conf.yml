@@ -1,0 +1,26 @@
+http:
+  routers:
+    rpc-server:
+      rule: "Host(`{{env "DOMAIN"}}`)"
+      entryPoints:
+        - "websecure"
+      middlewares:
+        - "rpc-ratelimit"
+      tls:
+        certResolver: "le-ssl"
+      service: "rpc-server"
+
+  services:
+    rpc-server:
+      loadBalancer:
+        servers:
+          - url: "http://{{env "RPC_HOST"}}:{{env "RPC_PORT"}}"
+
+    rpc-ratelimit:
+      rateLimit:
+        average: "{{env "RATE_LIMIT_AVERAGE"}}"
+        burst: "{{env "RATE_LIMIT_BURST"}}"
+        period: "{{env "RATE_LIMIT_PERIOD"}}"
+        sourceCriterion:
+          ipStrategy:
+            depth: "{{env "RATE_LIMIT_IP_DEPTH"}}"
