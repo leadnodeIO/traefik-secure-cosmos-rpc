@@ -1,7 +1,7 @@
 http:
   routers:
     rpc-server:
-      rule: "Host(`{{env "DOMAIN"}}`)"
+      rule: "Host(`{{env "RPC_DOMAIN"}}`)"
       entryPoints:
         - "websecure"
       middlewares:
@@ -10,11 +10,26 @@ http:
         certResolver: "le-ssl"
       service: "rpc-server"
 
+    api-server:
+      rule: "Host(`{{env "API_DOMAIN"}}`)"
+      entryPoints:
+        - "websecure"
+      middlewares:
+        - "rpc-ratelimit"
+      tls:
+        certResolver: "le-ssl"
+      service: "api-server"
+
   services:
     rpc-server:
       loadBalancer:
         servers:
-          - url: "http://{{env "RPC_HOST"}}:{{env "RPC_PORT"}}"
+          - url: "http://{{env "HOST"}}:{{env "RPC_PORT"}}"
+
+    api-server:
+      loadBalancer:
+        servers:
+          - url: "http://{{env "HOST"}}:{{env "API_PORT"}}"
 
   middlewares:
     rpc-ratelimit:
