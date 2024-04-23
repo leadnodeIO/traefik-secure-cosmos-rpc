@@ -16,6 +16,7 @@ http:
         servers:
           - url: "http://{{env "RPC_HOST"}}:{{env "RPC_PORT"}}"
 
+  middlewares:
     rpc-ratelimit:
       rateLimit:
         average: "{{env "RATE_LIMIT_AVERAGE"}}"
