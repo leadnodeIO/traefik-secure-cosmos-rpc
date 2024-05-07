@@ -19,6 +19,7 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.permanent=true"
       - "--entrypoints.websecure.address=:443"
       - "--providers.file.filename=/etc/traefik/dynamic_conf.yml"
+      - "--providers.file.watch=true"
       # SSL config
       - "--certificatesResolvers.le-ssl.acme.tlsChallenge=true"
       - "--certificatesResolvers.le-ssl.acme.email=${LE_EMAIL}"
